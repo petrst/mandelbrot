@@ -51,7 +51,16 @@ var Mandelbrot = function(canvas){
     var setRgb = function(r,g,b){
         return b +  (g << 8) + (r<<16) + (0xff << 24 );
     };
-    
+
+
+    var rgb_mapping = new Uint32Array(6);
+    rgb_mapping[0] = setRgb(255,0,255);
+    rgb_mapping[1] = setRgb(255,0,0);
+    rgb_mapping[2] = setRgb(255,255,0);
+    rgb_mapping[3] = setRgb(0,255,0);
+    rgb_mapping[4] = setRgb(0,255,255);
+    rgb_mapping[5] = setRgb(0,0,255);
+
     var sunset_mapping = new Uint32Array(16);
     sunset_mapping[0]=setRgb(66, 30, 15);
     sunset_mapping[1]=setRgb(25, 7, 26);
@@ -82,14 +91,19 @@ var Mandelbrot = function(canvas){
 
     this.map=function(i){
         var mapping=grayscale_mapping;
-        if (this.colors=='Sunset') mapping = sunset_mapping;
+        if (this.colors=='Sunset') {
+                mapping = sunset_mapping;
+        } else if (this.colors=='RGB') {
+                mapping = rgb_mapping;
+        }
+
 
         if (this.logMapping){
             //return mapping[mapping.length-Math.round(mapping.length * Math.log10(i)/Math.log10(this.iter))];
             return mapping[mapping.length - i % mapping.length];
         } else {
             var scale = Math.round(mapping.length * i/this.iter) ;
-            return mapping[ ( this.colorCycling * ( mapping.length - scale + this.colorOffset )) % mapping.length];
+            return mapping[ mapping.length - scale - 1 ];
         }
     }
     // MOUSE HANDLER --------------------------------------------------------------------
